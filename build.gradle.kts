@@ -15,4 +15,6 @@ dependencies {
     implementation(kotlin("script-runtime"))
     implementation(kotlin("compiler-embeddable"))
     implementation(kotlin("scripting-compiler-embeddable"))
+
+    implementation("com.github.ajalt.clikt:clikt:3.3.0")
 }
