@@ -1,6 +1,7 @@
 package dev.cbyrne.kpm.project
 
 import dev.cbyrne.kpm.project.pkg.ProjectScript
-import java.nio.file.Path
+import kotlinx.serialization.Serializable
 
-data class Project(val script: ProjectScript, val file: Path)
+@Serializable
+data class Project(val script: ProjectScript)
