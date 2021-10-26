@@ -14,7 +14,8 @@ class KPM(val project: Project, val root: Path) {
     }
 
     fun build() {
-        buildManager.build()
+        buildManager.compile()
+        println("[kpm] Project ${project.script.name} built!")
     }
 
     companion object {
