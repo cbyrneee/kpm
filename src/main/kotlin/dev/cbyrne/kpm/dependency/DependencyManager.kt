@@ -9,9 +9,9 @@ class DependencyManager(private val kpm: KPM) {
     fun resolveDependencies() {
         kpm.project.script.dependencies.forEach { dependency ->
             val located = artifactManager.locate(dependency.artifact)
-                .getOrElse { return@forEach System.err.println("[kpm] Failed to locate dependency: $dependency. Skipping!") }
+                .getOrElse { return@forEach KPM.logger.error("Failed to locate dependency: $dependency. Skipping!") }
 
-            println("[kpm] Successfully resolved dependency: $located")
+            KPM.logger.info("Successfully resolved dependency: $located")
         }
     }
 }

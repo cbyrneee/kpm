@@ -9,17 +9,14 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.option
 import kotlin.io.path.Path
 import kotlin.io.path.div
-import kotlin.io.path.name
 
 private fun load(customPath: String?): KPM {
     val directory = Path(System.getProperty("user.dir"))
     val script = customPath?.let { Path(it) } ?: (directory / "kpm.kts")
 
-    println("[kpm] Evaluating project from ${script.name}...")
-    val kpm = KPM.load(script, directory)
-    println("[kpm] Evaluated project ${kpm.project.script.name}!")
-
-    return kpm
+    val project = KPM.load(script, directory)
+    KPM.logger.info("Evaluated project ${project.project.script.name}!")
+    return project
 }
 
 private object KPMCommand : CliktCommand() {
@@ -27,6 +24,7 @@ private object KPMCommand : CliktCommand() {
     val kpm by findOrSetObject { load(scriptPath) }
 
     override fun run() {
+        KPM.logger.info("Evaluating project script...")
         kpm.initialize()
     }
 
@@ -35,7 +33,7 @@ private object KPMCommand : CliktCommand() {
         val kpm by requireObject<KPM>()
 
         override fun run() {
-            println("[kpm] Building...")
+            KPM.logger.info("Building...")
             kpm.build()
         }
     }

@@ -1,0 +1,12 @@
+<Configuration status="info">
+    <Appenders>
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout pattern="%style{[%c]}{white} %style{%highlight{%m%n}{INFO=bright, white}}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="stdout"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -4,6 +4,8 @@ import dev.cbyrne.kpm.KPM
 import dev.cbyrne.kpm.compile.message.KPMMessageCollector
 import dev.cbyrne.kpm.compile.message.KPMMessageRenderer
 import dev.cbyrne.kpm.extension.relativeToRootString
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
@@ -13,7 +15,9 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 
 class BuildManager(private val kpm: KPM) {
-    private val collector = KPMMessageCollector(kpm.project, KPMMessageRenderer(kpm.fileManager))
+    val logger: Logger = LogManager.getLogger("kpm.build")
+
+    private val collector = KPMMessageCollector(kpm.project, KPMMessageRenderer(kpm.fileManager), logger)
     private val compiler = K2JVMCompiler()
 
     fun compile() {
@@ -22,13 +26,13 @@ class BuildManager(private val kpm: KPM) {
 
         when (compiler.exec(collector, Services.EMPTY, arguments)) {
             ExitCode.OK -> {
-                println("[kpm] Build successful! (./${outputJar.relativeToRootString(kpm.fileManager)})")
+                logger.info("Build successful! (./${outputJar.relativeToRootString(kpm.fileManager)})")
             }
             ExitCode.COMPILATION_ERROR -> {
-                System.err.println("[kpm] Failed to compile, check logs for more information.")
+                logger.error("Failed to compile, check logs for more information.")
             }
             else -> {
-                System.err.println("[kpm] Failed to compile, an internal error has occurred in kotlinc.")
+                logger.error("Failed to compile, an internal error has occurred in kotlinc.")
             }
         }
     }
