@@ -10,6 +10,7 @@ import kotlin.io.path.Path
 
 class KPMMessageRenderer(private val fileManager: KPMFileManager, logger: Logger) : PlainTextMessageRenderer() {
     private val prefix = "[${logger.name}] "
+    private val codePadding = padding(prefix.length + 1)
 
     override fun getPath(location: CompilerMessageSourceLocation) =
         Path(location.path).relativeToRootString(fileManager)
@@ -19,10 +20,17 @@ class KPMMessageRenderer(private val fileManager: KPMFileManager, logger: Logger
         message: String,
         location: CompilerMessageSourceLocation?
     ) =
-        if (location == null) message
-        else "(${location.path}:${location.line}:${location.column}): $message\n" +
-                "${" ".repeat(prefix.length + 1)}${location.lineContent}\n" +
-                "${" ".repeat(prefix.length + 1)}${" ".repeat(location.column - 1)}^"
+        if (location == null)
+            message
+        else """
+            (${location.reference()}): $message
+            ${location.lineContent?.padded()}
+            ${"^".padded(location.column - 1)}
+            """.trimIndent().trimMargin()
+
+    private fun padding(length: Int) = " ".repeat(length)
+    private fun String.padded(extra: Int = 0) = "$codePadding${padding(extra)}$this"
+    private fun CompilerMessageSourceLocation.reference() = "${path}:${line}:${column}"
 
     override fun renderUsage(usage: String) = usage
     override fun renderPreamble() = ""
