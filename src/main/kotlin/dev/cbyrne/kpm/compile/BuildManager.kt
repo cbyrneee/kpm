@@ -17,8 +17,7 @@ class BuildManager(private val kpm: KPM) {
     private val compiler = K2JVMCompiler()
 
     fun compile() {
-        // TODO: Derive this from the kpm.kts file
-        val outputJar = kpm.fileManager.packageDir / "${kpm.project.script.name}.jar"
+        val outputJar = kpm.fileManager.packageDir / "${kpm.project.script.artifactName}.jar"
         val arguments = generateArguments(outputJar)
 
         when (compiler.exec(collector, Services.EMPTY, arguments)) {
