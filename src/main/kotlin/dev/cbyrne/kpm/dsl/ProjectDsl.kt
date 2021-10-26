@@ -8,6 +8,7 @@ import dev.cbyrne.kpm.project.pkg.ProjectScript
 class ProjectScriptBuilder {
     var name: String? = null
     var dependenciesBuilder: DependenciesBuilder? = null
+    var settings = ProjectScript.Settings()
 
     fun dependencies(builder: DependenciesBuilder.() -> Unit) {
         dependenciesBuilder = DependenciesBuilder().apply(builder)
@@ -15,8 +16,18 @@ class ProjectScriptBuilder {
 
     fun build() = ProjectScript(
         name ?: error("You must set a project name in your project {} block."),
-        dependenciesBuilder?.build() ?: emptyList()
+        dependenciesBuilder?.build() ?: emptyList(),
+        settings
     )
+
+    fun settings(builder: SettingsBuilder.() -> Unit) {
+        settings = SettingsBuilder().apply(builder).build()
+    }
+
+    class SettingsBuilder {
+        var doCompilerOutput = false
+        fun build() = ProjectScript.Settings(doCompilerOutput)
+    }
 
     class DependenciesBuilder {
         private val dependencies = mutableListOf<ProjectScript.Dependency>()
