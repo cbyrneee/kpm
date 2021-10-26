@@ -15,9 +15,8 @@ Essentially, ``kpm`` is going to be a lightweight alternative to Gradle for simp
 
 ### How do I use it?
 
-Right now, ``kpm`` is in early development, so it is not actually usable at the moment. As the project progresses, I will update this README with more information.
-
-However, if you are interested, here's an outline of how ``kpm`` will be used:
+Right now, ``kpm`` is in early development. While it does *somewhat* work, your mileage may vary when it comes to
+projects that are more complex than a simple hello world.
 
 - **1. Create your ``kpm.kts`` file:**
     ```kotlin
@@ -26,22 +25,22 @@ However, if you are interested, here's an outline of how ``kpm`` will be used:
     }
     ```
 
-- **2. Initialize ``kpm`` using the CLI:**
-    ```
-    cbyrne@Conors-MacBook-Air % kpm
-    [kpm] Loading project hello-world...
-    [kpm] Initializing project hello-world...
-    [kpm] Project hello-world initialized.
-          Note: A .kpm directory has been created to speed up subsequent builds.
-          If you make a change to your kpm.kts file, you must reinitialize your project.
+- **2. Create your source files**:
+
+  src/Hello.kt
+    ```kotlin
+    fun main() {
+        println("Hello, world!")
+    }
     ```
 
-- **3. Build your project (also using the CLI):**
+- **3. Build your project:**
     ```
     cbyrne@Conors-MacBook-Air % kpm build
-    [kpm] hello-world loaded from cache.
-    [kpm] Building project hello-world...
-    [kpm] Project hello-world built. (./build/hello-world.jar)
+    [kpm] Evaluating project from kpm.kts...
+    [kpm] Evaluated project hello-world!
+    [kpm] Building...
+    [kpm] Build successful! (./kpm/package/hello-world.jar)
     ```
 
 ### Notes
