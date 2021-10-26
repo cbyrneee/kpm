@@ -13,12 +13,10 @@ class KPMCommand : CliktCommand() {
         val directory = Path(System.getProperty("user.dir"))
         val script = scriptPath?.let { Path(it) } ?: (directory / "kpm.kts")
 
-        println("[kpm] Loading project from ${script.name}...")
+        println("[kpm] Evaluating project from ${script.name}...")
         val kpm = KPM.load(script, directory)
-        println("[kpm] Initializing project ${kpm.currentProject.script.name}${if (kpm.isCached) " (loaded from cache)" else ""}...")
-
-        kpm.generateCache()
-        println("[kpm] Project ${kpm.currentProject.script.name} initialized!")
+        println("[kpm] Initializing project ${kpm.project.script.name}...")
+        println("[kpm] Project ${kpm.project.script.name} initialized!")
     }
 }
 
