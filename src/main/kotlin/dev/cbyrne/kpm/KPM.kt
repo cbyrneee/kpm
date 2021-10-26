@@ -2,6 +2,7 @@ package dev.cbyrne.kpm
 
 import dev.cbyrne.kpm.compile.BuildManager
 import dev.cbyrne.kpm.dependency.DependencyManager
+import dev.cbyrne.kpm.extension.relativeToRootString
 import dev.cbyrne.kpm.file.KPMFileManager
 import dev.cbyrne.kpm.project.Project
 import dev.cbyrne.kpm.scripting.manager.ScriptManager
@@ -19,9 +20,11 @@ class KPM(val project: Project, val fileManager: KPMFileManager) {
         dependencyManager.resolveDependencies()
     }
 
-    fun build() {
-        buildManager.compile()
-    }
+    fun build() =
+        buildManager
+            .compile()
+            .getOrElse { return logger.error("Failed to compile. ${it.localizedMessage}.") }
+            .let { logger.info("Build successful! (./${it.relativeToRootString(fileManager)})") }
 
     companion object {
         val scriptManager = ScriptManager()
