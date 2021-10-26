@@ -1,6 +1,6 @@
 package dev.cbyrne.kpm.project.pkg
 
-import dev.cbyrne.kpm.dependency.Artifact
+import dev.cbyrne.kpm.dependency.artifact.Artifact
 
 data class ProjectScript(val name: String, val dependencies: List<Dependency>, val settings: Settings) {
     data class Dependency(val artifact: Artifact, val bundle: Boolean)

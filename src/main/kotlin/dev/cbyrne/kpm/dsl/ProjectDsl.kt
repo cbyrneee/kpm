@@ -2,7 +2,7 @@
 
 package dev.cbyrne.kpm.dsl
 
-import dev.cbyrne.kpm.dependency.Artifact
+import dev.cbyrne.kpm.dependency.artifact.Artifact
 import dev.cbyrne.kpm.project.pkg.ProjectScript
 
 class ProjectScriptBuilder {
