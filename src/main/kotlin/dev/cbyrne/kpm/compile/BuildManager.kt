@@ -13,7 +13,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 
 class BuildManager(private val kpm: KPM) {
-    private val collector = KPMMessageCollector(KPMMessageRenderer(kpm.fileManager))
+    private val collector = KPMMessageCollector(kpm.project, KPMMessageRenderer(kpm.fileManager))
     private val compiler = K2JVMCompiler()
 
     fun compile() {
