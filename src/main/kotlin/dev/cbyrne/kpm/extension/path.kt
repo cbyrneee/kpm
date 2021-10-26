@@ -1,17 +1,13 @@
 package dev.cbyrne.kpm.extension
 
+import dev.cbyrne.kpm.file.KPMFileManager
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
-import kotlin.io.path.createFile
 import kotlin.io.path.exists
-import kotlin.io.path.readText
+import kotlin.io.path.relativeTo
 
 fun Path.createDirectoryIfNotExists() {
     if (!exists()) createDirectories()
 }
 
-fun Path.createFileIfNotExists() {
-    if (!exists()) createFile()
-}
-
-inline fun <reified T> Path.decodeText(): T = readText().decode()
+fun Path.relativeToRootString(fileManager: KPMFileManager) = "${this.relativeTo(fileManager.rootDir)}"

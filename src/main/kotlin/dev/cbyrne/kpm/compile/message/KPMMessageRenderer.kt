@@ -1,20 +1,20 @@
 package dev.cbyrne.kpm.compile.message
 
+import dev.cbyrne.kpm.extension.relativeToRootString
+import dev.cbyrne.kpm.file.KPMFileManager
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSourceLocation
 import org.jetbrains.kotlin.cli.common.messages.PlainTextMessageRenderer
-import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.pathString
-import kotlin.io.path.relativeTo
 
-class KPMMessageRenderer(private val root: Path) : PlainTextMessageRenderer() {
+class KPMMessageRenderer(private val fileManager: KPMFileManager) : PlainTextMessageRenderer() {
     private val prefix = "[kotlinc]"
 
     override fun renderPreamble() = ""
     override fun renderConclusion() = ""
     override fun getName() = "KPM"
-    override fun getPath(location: CompilerMessageSourceLocation) = Path(location.path).relativeTo(root).pathString
+    override fun getPath(location: CompilerMessageSourceLocation) =
+        Path(location.path).relativeToRootString(fileManager)
 
     override fun render(
         severity: CompilerMessageSeverity,
