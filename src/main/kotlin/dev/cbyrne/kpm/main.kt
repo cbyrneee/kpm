@@ -16,27 +16,27 @@ private fun load(customPath: String?): KPM {
     val script = customPath?.let { Path(it) } ?: (directory / "kpm.kts")
 
     println("[kpm] Evaluating project from ${script.name}...")
-    val project = KPM.load(script, directory)
-    println("[kpm] Evaluated project ${project.project.script.name}!")
+    val kpm = KPM.load(script, directory)
+    println("[kpm] Evaluated project ${kpm.project.script.name}!")
 
-    return project
+    return kpm
 }
 
 private object KPMCommand : CliktCommand() {
     val scriptPath: String? by option(help = "Define a custom path to your kpm script")
-    val project by findOrSetObject { load(scriptPath) }
+    val kpm by findOrSetObject { load(scriptPath) }
 
     override fun run() {
-        project.initialize()
+        kpm.initialize()
     }
 
     object Build : CliktCommand(name = "build", help = "Build your project into a .JAR file") {
         val scriptPath: String? by option(help = "Define a custom path to your kpm script")
-        val project by requireObject<KPM>()
+        val kpm by requireObject<KPM>()
 
         override fun run() {
             println("[kpm] Building...")
-            project.build()
+            kpm.build()
         }
     }
 }
