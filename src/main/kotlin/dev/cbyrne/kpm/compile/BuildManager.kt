@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.config.Services
+import org.jetbrains.kotlin.incremental.classpathAsList
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
@@ -39,6 +40,7 @@ class BuildManager(private val kpm: KPM) {
             multiPlatform = false
             includeRuntime = false
             destination = output.absolutePathString()
+            classpathAsList = kpm.dependencyManager.dependencies.map { it.main.localFile.toFile() }
             freeArgs = listOf(kpm.fileManager.sourcesDir.absolutePathString())
         }
 

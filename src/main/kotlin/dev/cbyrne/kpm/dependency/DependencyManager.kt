@@ -1,9 +1,6 @@
 package dev.cbyrne.kpm.dependency
 
-import com.squareup.tools.maven.resolution.ArtifactResolver
-import com.squareup.tools.maven.resolution.Repositories
-import com.squareup.tools.maven.resolution.ResolutionResult
-import com.squareup.tools.maven.resolution.ResolvedArtifact
+import com.squareup.tools.maven.resolution.*
 import dev.cbyrne.kpm.KPM
 import dev.cbyrne.kpm.project.pkg.ProjectScript
 import org.apache.maven.model.Repository
@@ -11,9 +8,14 @@ import org.apache.maven.model.Repository
 class DependencyManager(private val kpm: KPM) {
     private val repositories = mutableListOf<Repository>(Repositories.MAVEN_CENTRAL)
     private val resolver = ArtifactResolver(repositories = repositories, suppressAddRepositoryWarnings = true)
+    private val availableDependencies = mutableListOf<ResolvedArtifact>()
 
-    fun initialize() =
+    val dependencies: List<ResolvedArtifact>
+        get() = availableDependencies
+
+    init {
         kpm.project.script.repositories.forEach { repositories.add(it) }
+    }
 
     fun resolve(): Result<List<Pair<ProjectScript.Dependency, ResolutionResult>>> =
         kpm.project.script.dependencies
@@ -24,5 +26,13 @@ class DependencyManager(private val kpm: KPM) {
                 Result.success(it)
             }
 
-    fun download(artifact: ResolvedArtifact) = resolver.downloadArtifact(artifact)
+    fun fetch(artifact: ResolvedArtifact): Result<ResolvedArtifact> {
+        return when (resolver.downloadArtifact(artifact)) {
+            is FetchStatus.RepositoryFetchStatus.SUCCESSFUL -> {
+                availableDependencies.add(artifact)
+                Result.success(artifact)
+            }
+            else -> Result.failure(Exception("Failed to resolve ${artifact.coordinate}"))
+        }
+    }
 }
