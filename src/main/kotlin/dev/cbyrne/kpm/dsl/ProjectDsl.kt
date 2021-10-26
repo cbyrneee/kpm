@@ -26,7 +26,9 @@ class ProjectScriptBuilder {
 
     class SettingsBuilder {
         var doCompilerOutput = false
-        fun build() = ProjectScript.Settings(doCompilerOutput)
+        var artifactNameOverride: String? = null
+
+        fun build() = ProjectScript.Settings(doCompilerOutput, artifactNameOverride)
     }
 
     class DependenciesBuilder {
