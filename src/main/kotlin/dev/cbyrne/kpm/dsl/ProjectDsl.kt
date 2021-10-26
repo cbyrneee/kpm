@@ -3,8 +3,8 @@
 package dev.cbyrne.kpm.dsl
 
 import dev.cbyrne.kpm.dependency.artifact.Artifact
-import dev.cbyrne.kpm.dependency.repository.Repository
 import dev.cbyrne.kpm.project.pkg.ProjectScript
+import org.apache.maven.model.Repository
 import java.net.URL
 
 class ProjectScriptBuilder {
@@ -41,17 +41,26 @@ class ProjectScriptBuilder {
 
     class RepositoriesBuilder {
         private val repositories =
-            mutableListOf<Repository>(Repository.Maven.mavenCentral())
+            mutableListOf<Repository>()
 
-        fun maven(url: URL) =
-            repositories.add(Repository.Maven(url))
+        fun maven(repositoryUrl: URL) =
+            maven(repositoryUrl.toString())
 
-        fun kpm(url: URL) =
-            repositories.add(Repository.KPM(url))
+        fun maven(repositoryUrl: String) =
+            repositories.add(Repository().apply { url = repositoryUrl })
 
-        fun maven(url: String) = maven(URL(url))
+        fun maven(builder: RepositoryBuilder.() -> Unit) =
+            repositories.add(RepositoryBuilder().apply(builder).build())
 
-        fun kpm(url: String) = kpm(URL(url))
+        class RepositoryBuilder {
+            var id: String? = null
+            var url: String? = null
+
+            fun build() = Repository().apply {
+                url = this@RepositoryBuilder.url
+                id = this@RepositoryBuilder.id
+            }
+        }
 
         fun build() = repositories
     }

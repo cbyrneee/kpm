@@ -1,7 +1,7 @@
 package dev.cbyrne.kpm.project.pkg
 
 import dev.cbyrne.kpm.dependency.artifact.Artifact
-import dev.cbyrne.kpm.dependency.repository.Repository
+import org.apache.maven.model.Repository
 
 data class ProjectScript(
     val name: String,

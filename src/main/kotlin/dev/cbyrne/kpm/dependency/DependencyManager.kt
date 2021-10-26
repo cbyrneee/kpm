@@ -1,26 +1,28 @@
 package dev.cbyrne.kpm.dependency
 
+import com.squareup.tools.maven.resolution.ArtifactResolver
+import com.squareup.tools.maven.resolution.Repositories
+import com.squareup.tools.maven.resolution.ResolutionResult
+import com.squareup.tools.maven.resolution.ResolvedArtifact
 import dev.cbyrne.kpm.KPM
-import dev.cbyrne.kpm.dependency.artifact.resolver.ArtifactManager
-import org.jetbrains.kotlin.utils.ifEmpty
+import dev.cbyrne.kpm.project.pkg.ProjectScript
+import org.apache.maven.model.Repository
 
 class DependencyManager(private val kpm: KPM) {
-    private val artifactManager = ArtifactManager(kpm.project)
+    private val repositories = mutableListOf<Repository>(Repositories.MAVEN_CENTRAL)
+    private val resolver = ArtifactResolver(repositories = repositories, suppressAddRepositoryWarnings = true)
 
-    fun resolveDependencies() {
-        kpm.project.script.repositories.ifEmpty {
-            return KPM.logger.warn("Unable to resolve any dependencies. Repositories are somehow empty! (this should not happen)")
-        }
+    fun initialize() =
+        kpm.project.script.repositories.forEach { repositories.add(it) }
 
+    fun resolve(): Result<List<Pair<ProjectScript.Dependency, ResolutionResult>>> =
         kpm.project.script.dependencies
-            .ifEmpty {
-                return KPM.logger.info("No dependencies to resolve.")
+            .ifEmpty { return Result.failure(Exception("No dependencies to resolve")) }
+            .map {
+                Pair(it, resolver.resolve(resolver.artifactFor(it.artifact.toString())))
+            }.let {
+                Result.success(it)
             }
-            .forEach { dependency ->
-                val located = artifactManager.locate(dependency.artifact)
-                    .getOrElse { return@forEach KPM.logger.error("Failed to locate dependency: $dependency. Skipping!") }
 
-                KPM.logger.info("Successfully resolved dependency: $located")
-            }
-    }
+    fun download(artifact: ResolvedArtifact) = resolver.downloadArtifact(artifact)
 }
