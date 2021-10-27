@@ -87,6 +87,23 @@ class ProjectScriptBuilder {
             dependencies.add(ProjectScript.Dependency(artifact, true))
         }
 
+        fun runtime(builder: DependencyBuilder.() -> Unit) =
+            dependencies.add(DependencyBuilder().apply(builder).build())
+
+        fun runtime(artifact: Artifact) =
+            dependencies.add(ProjectScript.Dependency(artifact, false))
+
+        fun runtime(group: String, name: String, version: String) =
+            dependencies.add(ProjectScript.Dependency(Artifact(group, name, version), false))
+
+        fun runtime(simpleString: String) {
+            val sections = simpleString.split(":")
+            if (sections.size != 3) error("Invalid dependency string: $simpleString")
+
+            val artifact = Artifact(sections[0], sections[1], sections[2])
+            dependencies.add(ProjectScript.Dependency(artifact, false))
+        }
+
         fun build() = dependencies
 
         class DependencyBuilder {
