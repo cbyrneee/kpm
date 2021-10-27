@@ -58,7 +58,7 @@ class KPM(val project: Project, val fileManager: KPMFileManager) {
             }
 
         logger.info("Creating package...")
-        buildManager.createManifest(output)
+        buildManager.createManifest(output, project.script.main)
             .onFailure {
                 output.deleteRecursively()
                 return logger.error("Failed to create manifest. ${it.localizedMessage}")

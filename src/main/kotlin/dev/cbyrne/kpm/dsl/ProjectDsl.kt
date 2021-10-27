@@ -9,6 +9,7 @@ import java.net.URL
 
 class ProjectScriptBuilder {
     var name: String? = null
+    var main: String? = null
     var settings = ProjectScript.Settings()
     var dependenciesBuilder = DependenciesBuilder()
     var repositoriesBuilder = RepositoriesBuilder()
@@ -27,6 +28,7 @@ class ProjectScriptBuilder {
 
     fun build() = ProjectScript(
         name ?: error("You must set a project name in your project {} block."),
+        main,
         settings,
         dependenciesBuilder.build(),
         repositoriesBuilder.build()

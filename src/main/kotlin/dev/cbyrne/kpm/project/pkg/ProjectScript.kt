@@ -5,6 +5,7 @@ import org.apache.maven.model.Repository
 
 data class ProjectScript(
     val name: String,
+    val main: String? = null,
     val settings: Settings,
     val dependencies: List<Dependency>,
     val repositories: List<Repository>,
