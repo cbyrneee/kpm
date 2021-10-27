@@ -3,7 +3,7 @@ package dev.cbyrne.kpm
 import com.squareup.tools.maven.resolution.FetchStatus
 import dev.cbyrne.kpm.compile.BuildManager
 import dev.cbyrne.kpm.dependency.DependencyManager
-import dev.cbyrne.kpm.extension.*
+import dev.cbyrne.kpm.extension.relativeToRootString
 import dev.cbyrne.kpm.file.KPMFileManager
 import dev.cbyrne.kpm.project.Project
 import dev.cbyrne.kpm.scripting.manager.ScriptManager
@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger
 import java.nio.file.Path
 import kotlin.io.path.div
 import kotlin.io.path.readText
-import kotlin.io.path.writeBytes
 
 class KPM(val project: Project, val fileManager: KPMFileManager) {
     internal val dependencyManager = DependencyManager(this)
@@ -43,40 +42,24 @@ class KPM(val project: Project, val fileManager: KPMFileManager) {
     }
 
     fun build() {
-        val compiled = buildManager.compile()
+        val output = buildManager.compile()
             .getOrElse { return logger.error("Failed to compile. ${it.localizedMessage}.") }
 
         project.script.dependencies
             .filter { it.bundle }
             .mapNotNull { dependencyManager.dependencies[it] }
-            .takeIf { it.isNotEmpty() }
-            ?.let {
-                logger.info("Constructing JAR package and including ${it.size} dependencies...")
-                it.forEach { artifact ->
-                    artifact.main.localFile.zipFile().use { zip ->
-                        zip.entriesSequence()
-                            .filter { entry -> !entry.isDirectory }
-                            .forEach { entry ->
-                                zip.inputStream(entry) { input ->
-                                    kotlin.runCatching {
-                                        compiled.resolve(entry.name)
-                                            .createFileAndParentIfNotExists()
-                                            .writeBytes(input.readBytes())
-                                    }.onFailure {
-                                        return logger.error("Failed to copy ${entry.name}")
-                                    }
-                                }
-                            }
-                    }
-                }
+            .let {
+                if (it.isEmpty()) return logger.info("No dependencies to bundle, skipping!")
+
+                buildManager.bundle(it, output)
+                    .getOrElse { return logger.error("Failed to bundle dependencies inside package. ${it.localizedMessage}") }
+                    .let { artifacts -> logger.info("Bundled ${artifacts.size} dependencies!") }
             }
 
-        buildManager.createPackage(compiled, fileManager.packageDir / "${project.script.artifactName}.jar")
-            .getOrElse { t ->
-                return logger.error("Failed to create package. ${t.localizedMessage}")
-            }.let {
-                logger.info("Build successful! (./${it.relativeToRootString(fileManager)})")
-            }
+        logger.info("Creating package...")
+        buildManager.createPackage(output, fileManager.packageDir / "${project.script.artifactName}.jar")
+            .getOrElse { return logger.error("Failed to create package. ${it.localizedMessage}") }
+            .let { logger.info("Build successful! (./${it.relativeToRootString(fileManager)})") }
     }
 
     companion object {

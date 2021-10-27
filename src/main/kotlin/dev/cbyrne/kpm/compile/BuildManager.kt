@@ -1,5 +1,6 @@
 package dev.cbyrne.kpm.compile
 
+import com.squareup.tools.maven.resolution.ResolvedArtifact
 import dev.cbyrne.kpm.KPM
 import dev.cbyrne.kpm.compile.message.KPMMessageCollector
 import dev.cbyrne.kpm.compile.message.KPMMessageRenderer
@@ -75,5 +76,27 @@ class BuildManager(private val kpm: KPM) {
         }
 
         return args
+    }
+
+    fun bundle(artifacts: List<ResolvedArtifact>, destination: Path): Result<List<ResolvedArtifact>> {
+        artifacts.forEach { artifact ->
+            artifact.main.localFile.zipFile().use { zip ->
+                zip.entriesSequence()
+                    .filter { !it.isDirectory }
+                    .forEach {
+                        zip.inputStream(it) { stream ->
+                            kotlin.runCatching {
+                                destination.resolve(it.name)
+                                    .createFileAndParentIfNotExists()
+                                    .writeBytes(stream.readBytes())
+                            }.onFailure { t ->
+                                return Result.failure(t)
+                            }
+                        }
+                    }
+            }
+        }
+
+        return Result.success(artifacts)
     }
 }
