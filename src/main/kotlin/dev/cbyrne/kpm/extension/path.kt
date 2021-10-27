@@ -3,6 +3,7 @@ package dev.cbyrne.kpm.extension
 import dev.cbyrne.kpm.file.KPMFileManager
 import java.io.FileOutputStream
 import java.nio.file.Path
+import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
@@ -30,3 +31,7 @@ fun Path.deleteRecursively() = toFile().deleteRecursively()
 fun Path.relativeToRootString(fileManager: KPMFileManager) = "${this.relativeTo(fileManager.rootDir)}"
 
 fun Path.zipOutputStream() = ZipOutputStream(FileOutputStream(toFile()))
+
+fun Path.zipFile() = ZipFile(toFile())
+
+fun Path.walkTopDown() = toFile().walkTopDown()

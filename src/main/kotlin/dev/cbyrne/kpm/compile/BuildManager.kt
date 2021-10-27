@@ -3,9 +3,7 @@ package dev.cbyrne.kpm.compile
 import dev.cbyrne.kpm.KPM
 import dev.cbyrne.kpm.compile.message.KPMMessageCollector
 import dev.cbyrne.kpm.compile.message.KPMMessageRenderer
-import dev.cbyrne.kpm.extension.createFileIfNotExists
-import dev.cbyrne.kpm.extension.deleteRecursively
-import dev.cbyrne.kpm.extension.zipOutputStream
+import dev.cbyrne.kpm.extension.*
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
@@ -14,7 +12,6 @@ import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.incremental.classpathAsList
 import org.jetbrains.kotlin.konan.file.File
 import java.nio.file.Path
-import java.util.zip.ZipEntry
 import kotlin.io.path.*
 
 class BuildManager(private val kpm: KPM) {
@@ -40,29 +37,23 @@ class BuildManager(private val kpm: KPM) {
         return output
             .createFileIfNotExists()
             .zipOutputStream()
-            .let { stream ->
+            .use { stream ->
                 contents
-                    .toFile()
                     .walkTopDown()
                     .forEach {
                         kotlin.runCatching {
                             val relative = it.toPath().relativeTo(contents).toString()
                             if (it.isFile) {
-                                val entry = ZipEntry(relative)
-                                stream.putNextEntry(entry)
-                                stream.write(it.readBytes())
+                                stream.addEntry(relative, it.readBytes())
                             } else {
-                                val entry = ZipEntry("$relative${File.separator}")
-                                stream.putNextEntry(entry)
+                                stream.addEntry("$relative${File.separator}")
                             }
                         }.onFailure {
-                            stream.close()
                             contents.deleteRecursively()
-                            return@let Result.failure(it)
+                            return@use Result.failure(it)
                         }
                     }
 
-                stream.close()
                 contents.deleteRecursively()
                 Result.success(output)
             }

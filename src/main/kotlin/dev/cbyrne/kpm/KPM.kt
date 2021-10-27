@@ -3,15 +3,13 @@ package dev.cbyrne.kpm
 import com.squareup.tools.maven.resolution.FetchStatus
 import dev.cbyrne.kpm.compile.BuildManager
 import dev.cbyrne.kpm.dependency.DependencyManager
-import dev.cbyrne.kpm.extension.createFileAndParentIfNotExists
-import dev.cbyrne.kpm.extension.relativeToRootString
+import dev.cbyrne.kpm.extension.*
 import dev.cbyrne.kpm.file.KPMFileManager
 import dev.cbyrne.kpm.project.Project
 import dev.cbyrne.kpm.scripting.manager.ScriptManager
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Path
-import java.util.zip.ZipFile
 import kotlin.io.path.div
 import kotlin.io.path.readText
 import kotlin.io.path.writeBytes
@@ -55,10 +53,11 @@ class KPM(val project: Project, val fileManager: KPMFileManager) {
             ?.let {
                 logger.info("Constructing JAR package and including ${it.size} dependencies...")
                 it.forEach { artifact ->
-                    ZipFile(artifact.main.localFile.toFile()).use { zip ->
-                        zip.entries().asSequence().forEach { entry ->
-                            if (!entry.isDirectory) {
-                                zip.getInputStream(entry).use { input ->
+                    artifact.main.localFile.zipFile().use { zip ->
+                        zip.entriesSequence()
+                            .filter { entry -> !entry.isDirectory }
+                            .forEach { entry ->
+                                zip.inputStream(entry) { input ->
                                     kotlin.runCatching {
                                         compiled.resolve(entry.name)
                                             .createFileAndParentIfNotExists()
@@ -68,7 +67,6 @@ class KPM(val project: Project, val fileManager: KPMFileManager) {
                                     }
                                 }
                             }
-                        }
                     }
                 }
             }
