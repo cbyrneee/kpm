@@ -46,18 +46,18 @@ class KPM(val project: Project, val fileManager: KPMFileManager) {
         val output = buildManager.compile()
             .getOrElse { return logger.error("Failed to compile. ${it.localizedMessage}.") }
 
+        logger.info("Creating package...")
         project.script.dependencies
             .filter { it.bundle }
             .mapNotNull { dependencyManager.dependencies[it] }
-            .let {
-                buildManager.bundle(it, output)
+            .let { artifacts ->
+                buildManager.bundle(artifacts, output)
                     .onFailure {
                         output.deleteRecursively()
                         return logger.error("Failed to bundle dependencies inside package. ${it.localizedMessage}")
                     }
             }
 
-        logger.info("Creating package...")
         buildManager.createManifest(output, project.script.main)
             .onFailure {
                 output.deleteRecursively()
