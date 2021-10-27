@@ -13,7 +13,9 @@ import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.incremental.classpathAsList
 import org.jetbrains.kotlin.konan.file.File
 import java.nio.file.Path
+import java.util.jar.Manifest
 import kotlin.io.path.*
+
 
 class BuildManager(private val kpm: KPM) {
     private val logger = LogManager.getLogger("kotlinc")
@@ -98,5 +100,33 @@ class BuildManager(private val kpm: KPM) {
         }
 
         return Result.success(artifacts)
+    }
+
+    fun createManifest(output: Path, mainClass: String? = null): Result<Manifest> =
+        output
+            .resolve("META-INF/MANIFEST.MF")
+            .createFileAndParentIfNotExists()
+            .let { file ->
+                kotlin.runCatching {
+                    generateManifest(mainClass)
+                        .let {
+                            it.write(file.outputStream())
+                            it
+                        }
+                }.onFailure {
+                    it.printStackTrace()
+                    return Result.failure(it)
+                }
+            }
+
+    private fun generateManifest(mainClass: String? = null): Manifest {
+        val manifest = Manifest()
+        with(manifest) {
+            mainAttributes.putValue("Manifest-Version", "1.0")
+            mainAttributes.putValue("Created-By", "KPM (Kotlin Project Manager)")
+            mainClass?.let { clazz -> mainAttributes.putValue("Main-Class", clazz) }
+        }
+
+        return manifest
     }
 }

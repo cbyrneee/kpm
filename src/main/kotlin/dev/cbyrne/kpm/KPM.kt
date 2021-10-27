@@ -3,6 +3,7 @@ package dev.cbyrne.kpm
 import com.squareup.tools.maven.resolution.FetchStatus
 import dev.cbyrne.kpm.compile.BuildManager
 import dev.cbyrne.kpm.dependency.DependencyManager
+import dev.cbyrne.kpm.extension.deleteRecursively
 import dev.cbyrne.kpm.extension.relativeToRootString
 import dev.cbyrne.kpm.file.KPMFileManager
 import dev.cbyrne.kpm.project.Project
@@ -49,14 +50,20 @@ class KPM(val project: Project, val fileManager: KPMFileManager) {
             .filter { it.bundle }
             .mapNotNull { dependencyManager.dependencies[it] }
             .let {
-                if (it.isEmpty()) return logger.info("No dependencies to bundle, skipping!")
-
                 buildManager.bundle(it, output)
-                    .getOrElse { return logger.error("Failed to bundle dependencies inside package. ${it.localizedMessage}") }
-                    .let { artifacts -> logger.info("Bundled ${artifacts.size} dependencies!") }
+                    .onFailure {
+                        output.deleteRecursively()
+                        return logger.error("Failed to bundle dependencies inside package. ${it.localizedMessage}")
+                    }
             }
 
         logger.info("Creating package...")
+        buildManager.createManifest(output)
+            .onFailure {
+                output.deleteRecursively()
+                return logger.error("Failed to create manifest. ${it.localizedMessage}")
+            }
+
         buildManager.createPackage(output, fileManager.packageDir / "${project.script.artifactName}.jar")
             .getOrElse { return logger.error("Failed to create package. ${it.localizedMessage}") }
             .let { logger.info("Build successful! (./${it.relativeToRootString(fileManager)})") }
