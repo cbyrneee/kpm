@@ -11,7 +11,6 @@ import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.incremental.classpathAsList
-import org.jetbrains.kotlin.konan.file.File
 import java.nio.file.Path
 import java.util.jar.Manifest
 import kotlin.io.path.*
@@ -48,7 +47,7 @@ class BuildManager(private val kpm: KPM) {
                             if (it.isFile) {
                                 stream.addEntry(relative, it.readBytes())
                             } else {
-                                stream.addEntry("$relative${File.separator}")
+                                stream.addEntry("$relative/")
                             }
                         }.onFailure {
                             contents.deleteRecursively()
