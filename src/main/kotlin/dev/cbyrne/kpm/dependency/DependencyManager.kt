@@ -8,9 +8,9 @@ import org.apache.maven.model.Repository
 class DependencyManager(private val kpm: KPM) {
     private val repositories = mutableListOf<Repository>(Repositories.MAVEN_CENTRAL)
     private val resolver = ArtifactResolver(repositories = repositories, suppressAddRepositoryWarnings = true)
-    private val availableDependencies = mutableListOf<ResolvedArtifact>()
+    private val availableDependencies = mutableMapOf<ProjectScript.Dependency, ResolvedArtifact>()
 
-    val dependencies: List<ResolvedArtifact>
+    val dependencies: Map<ProjectScript.Dependency, ResolvedArtifact>
         get() = availableDependencies
 
     init {
@@ -26,10 +26,10 @@ class DependencyManager(private val kpm: KPM) {
                 Result.success(it)
             }
 
-    fun fetch(artifact: ResolvedArtifact): Result<ResolvedArtifact> {
+    fun fetch(dependency: ProjectScript.Dependency, artifact: ResolvedArtifact): Result<ResolvedArtifact> {
         return when (resolver.downloadArtifact(artifact)) {
             is FetchStatus.RepositoryFetchStatus.SUCCESSFUL -> {
-                availableDependencies.add(artifact)
+                availableDependencies[dependency] = artifact
                 Result.success(artifact)
             }
             else -> Result.failure(Exception("Failed to resolve ${artifact.coordinate}"))
