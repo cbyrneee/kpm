@@ -21,7 +21,8 @@ projects that are more complex than a simple hello world.
 - **1. Create your ``kpm.kts`` file:**
     ```kotlin
     project {
-        name = "hello-world"
+        name = "hello-world" // The name of your project, is used for the final artifact name
+        main = "HelloKt"     // The name of your main class 
     }
     ```
 
