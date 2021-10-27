@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.5.31"
     kotlin("plugin.serialization") version "1.5.31"
+    application
 }
 
 group = "dev.cbyrne.kpm"
@@ -25,4 +26,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.14.1")
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
+}
+
+application {
+    mainClass.set("dev.cbyrne.kpm.MainKt")
 }
