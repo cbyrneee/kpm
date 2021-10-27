@@ -2,10 +2,6 @@
 
 ``kpm`` (Kotlin Project Manager) is a lightweight tool for managing and building Kotlin projects.
 
-### What is kpm?
-
-Essentially, ``kpm`` is going to be a lightweight alternative to Gradle for simple Kotlin projects.
-
 ### Why should I use kpm?
 
 - **Gradle is absolutely massive**, and a lot of the fancy gradle features either get in the way, or are not used by
@@ -15,33 +11,37 @@ Essentially, ``kpm`` is going to be a lightweight alternative to Gradle for simp
 
 ### How do I use it?
 
-Right now, ``kpm`` is in early development. While it does *somewhat* work, your mileage may vary when it comes to
-projects that are more complex than a simple hello world.
+``kpm`` is in early development, however it is usable! If you run into any problems, please open
+an [issue](https://github.com/cbyrneee/kpm/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc).
 
-- **1. Create your ``kpm.kts`` file:**
-    ```kotlin
-    project {
-        name = "hello-world" // The name of your project, is used for the final artifact name
-        main = "HelloKt"     // The name of your main class 
-    }
+- **1. Install kpm**:
+
+  *Instructions coming soon*
+
+
+- **2. Create a project**:
+     ```
+    cbyrne@Conors-MacBook-Air % kpm init
+    What is your project's name?: my-kpm-application
+    [kpm] Creating project: my-kpm-application
+    [kpm] Project created! Run kpm build to build your project.
+          $ cd ./my-kpm-application
+          $ kpm build
     ```
+  When you use the ``kpm init`` command, ``kpm`` will create your ``kpm.kts`` script automatically.
 
-- **2. Create your source files**:
+  A simple ``Main.kt`` file will also be created for you.
 
-  src/Hello.kt
-    ```kotlin
-    fun main() {
-        println("Hello, world!")
-    }
-    ```
 
 - **3. Build your project:**
     ```
+    cbyrne@Conors-Macbook-Air % cd ./my-kpm-application
     cbyrne@Conors-MacBook-Air % kpm build
-    [kpm] Evaluating project from kpm.kts...
-    [kpm] Evaluated project hello-world!
-    [kpm] Building...
-    [kpm] Build successful! (./kpm/package/hello-world.jar)
+    [kpm] Evaluating project script...
+    [kpm] Evaluated project my-kpm-application!
+    [kpm] Resolved org.jetbrains.kotlin:kotlin-stdlib:1.5.31 -> .../kotlin-stdlib-1.5.31.jar
+    [kpm] Creating package...
+    [kpm] Build successful! (./package/my-kpm-application.jar)
     ```
 
 ### Notes
