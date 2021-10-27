@@ -16,7 +16,6 @@ import java.nio.file.Path
 import java.util.jar.Manifest
 import kotlin.io.path.*
 
-
 class BuildManager(private val kpm: KPM) {
     private val logger = LogManager.getLogger("kotlinc")
     private val collector = KPMMessageCollector(kpm.project, KPMMessageRenderer(kpm.fileManager, logger), logger)
@@ -67,10 +66,9 @@ class BuildManager(private val kpm: KPM) {
         with(args) {
             suppressWarnings = false
             languageVersion = "1.5"
-            // TODO: Download Kotlin libs at runtime
-            kotlinHome = "/opt/homebrew/Cellar/kotlin/1.5.31/libexec/"
             apiVersion = "1.5"
             multiPlatform = false
+            noStdlib = true
             includeRuntime = false
             destination = output.absolutePathString()
             classpathAsList = kpm.dependencyManager.dependencies.map { it.value.main.localFile.toFile() }
